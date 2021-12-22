@@ -1,0 +1,47 @@
+src/tar/test/tar-contents/
+src/tar/test/tar-contents/1
+src/tar/test/tar-contents/2
+src/tar/test/tar-contents/3
+src/tar/test/tar-contents/4
+src/tar/test/tar-contents/a
+src/tar/test/tar-contents/a.lnk
+src/tar/test/tar-contents/asdf
+src/tar/test/tar-contents/b
+src/tar/test/tar-contents/b.lnk
+src/tar/test/tar-contents/bcle
+src/tar/test/tar-contents/c
+src/tar/test/tar-contents/d
+src/tar/test/tar-contents/subdir/
+src/tar/test/tar-contents/subdir/subfile1
+src/tar/test/tar-contents/subdir/subfile2
+src/tar/test/tar-contents/subdir/subfile3
+directory: src/tar/test/tar-contents/
+file: src/tar/test/tar-contents/1
+	contents(0): []
+file: src/tar/test/tar-contents/2
+	contents(0): []
+file: src/tar/test/tar-contents/3
+	contents(0): []
+file: src/tar/test/tar-contents/4
+	contents(0): []
+file: src/tar/test/tar-contents/a
+	contents(0): []
+symlink: src/tar/test/tar-contents/a.lnk -> a
+file: src/tar/test/tar-contents/asdf
+	contents(28): [this is a file with contents]
+file: src/tar/test/tar-contents/b
+	contents(0): []
+symlink: src/tar/test/tar-contents/b.lnk -> b
+file: src/tar/test/tar-contents/bcle
+	contents(46): [this is a another file with different contents]
+file: src/tar/test/tar-contents/c
+	contents(0): []
+file: src/tar/test/tar-contents/d
+	contents(0): []
+directory: src/tar/test/tar-contents/subdir/
+file: src/tar/test/tar-contents/subdir/subfile1
+	contents(0): []
+file: src/tar/test/tar-contents/subdir/subfile2
+	contents(0): []
+file: src/tar/test/tar-contents/subdir/subfile3
+	contents(0): []
