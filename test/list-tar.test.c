@@ -13,7 +13,6 @@
 #include "../../log/log.h"
 #include "../common.h"
 #include "../read.h"
-#include "../../debug/debug.h"
 
 int main()
 {
