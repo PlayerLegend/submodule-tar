@@ -4,6 +4,7 @@
 #define FLAT_INCLUDES
 #include "../range/def.h"
 #include "../window/def.h"
+#include "../convert/sink.h"
 #include "../keyargs/keyargs.h"
 #include "common.h"
 #endif
@@ -67,3 +68,10 @@ keyargs_declare(bool,tar_write_path_header,
    @param detect_type If a non-null pointer is given here, its destination will be assigned to the detected tar_type of the entity located at the given path.
    @param detect_size If a non-null pointer is given here, then its destination will be assigned to the size obtained from the stat function at the given path.
 */
+
+keyargs_declare(bool,tar_write_path,
+		convert_sink * sink;
+		window_unsigned_char * buffer;
+		const char * path;
+		const char * override_name;);
+#define tar_write_file_from_path(...) keyargs_call(tar_write_path, __VA_ARGS__)

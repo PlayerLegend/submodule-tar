@@ -10,17 +10,22 @@
 #include <grp.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <fcntl.h>
 #define FLAT_INCLUDES
 #include "../range/def.h"
 #include "../window/def.h"
 #include "../window/alloc.h"
 #include "../keyargs/keyargs.h"
-#include "../convert/def.h"
+#include "../convert/sink.h"
+#include "../convert/source.h"
+#include "../convert/duplex.h"
+#include "../convert/fd/source.h"
 #include "common.h"
 #include "write.h"
 #include "internal/spec.h"
 #include "../log/log.h"
-#include "../path/path.h"
+
+#define PATH_SEPARATOR '/'
 
 inline static bool convert_type(char * output, tar_type input)
 {
@@ -320,4 +325,45 @@ keyargs_define(tar_write_path_header)
     
 fail:
     return false;
+}
+
+keyargs_define(tar_write_path)
+{
+    args.sink->contents = &args.buffer->region.const_cast;
+    
+    tar_type type = TAR_ERROR;
+    unsigned long long size = -1;
+    if (!tar_write_path_header(.output = args.buffer,
+			       .detect_type = &type,
+			       .detect_size = &size,
+			       .path = args.path,
+			       .override_name = args.override_name))
+    {
+	return false;
+    }
+
+    int file_fd = open (args.path, O_RDONLY);
+
+    if (file_fd < 0)
+    {
+	perror (args.path);
+	return false;
+    }
+
+    fd_source fd_source = fd_source_init(.fd = file_fd, .contents = args.buffer);
+
+    bool join_success = convert_join (args.sink, &fd_source.source);
+    
+    convert_source_clear(&fd_source.source);
+    
+    if (!join_success)
+    {
+	return false;
+    }
+
+    tar_write_padding(args.buffer, size);
+
+    bool error = false;
+
+    return convert_drain (&error, args.sink);
 }

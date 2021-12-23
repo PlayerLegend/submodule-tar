@@ -5,7 +5,7 @@
 #include "../keyargs/keyargs.h"
 #include "../range/def.h"
 #include "../window/def.h"
-#include "../convert/def.h"
+#include "../convert/source.h"
 #include "common.h"
 #endif
 
@@ -41,7 +41,7 @@ struct tar_state {
     }
 	file; ///< Contains information specific to files
     
-    convert_interface * source;
+    convert_source * source;
 };
 
 bool tar_read_file_part (bool * error, range_const_unsigned_char * contents, tar_state * state);

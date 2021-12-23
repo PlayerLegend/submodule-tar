@@ -10,7 +10,7 @@
 #include "../window/def.h"
 #include "../window/alloc.h"
 #include "../window/printf.h"
-#include "../convert/def.h"
+#include "../convert/source.h"
 #include "../keyargs/keyargs.h"
 #include "common.h"
 #include "read.h"
@@ -286,7 +286,7 @@ bool tar_update (tar_state * state)
 	    log_fatal ("Input closed prematurely");
 	}
 
-	if (!tar_update_mem (state, &state->source->read_buffer->region.const_cast))
+	if (!tar_update_mem (state, &state->source->contents->region.const_cast))
 	{
 	    goto done;
 	}

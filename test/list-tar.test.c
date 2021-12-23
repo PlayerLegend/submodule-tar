@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <unistd.h>
 #define FLAT_INCLUDES
 #include "../../range/def.h"
 #include "../../window/def.h"
 #include "../../window/alloc.h"
 #include "../../keyargs/keyargs.h"
-#include "../../convert/def.h"
-#include "../../convert/fd.h"
+#include "../../convert/source.h"
+#include "../../convert/fd/source.h"
 #include "../internal/spec.h"
 #include "../../log/log.h"
 #include "../common.h"
@@ -17,8 +18,8 @@
 int main()
 {
     window_unsigned_char buffer = {0};
-    fd_interface fd_read = fd_interface_init(.fd = STDIN_FILENO, .read_buffer = &buffer);
-    tar_state state = { .source = &fd_read.interface };
+    fd_source fd_read = fd_source_init(.fd = STDIN_FILENO, .contents = &buffer);
+    tar_state state = { .source = &fd_read.source };
     window_unsigned_char file_contents = {0};;
 
     while (tar_update (&state))

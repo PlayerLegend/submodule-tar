@@ -2,12 +2,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #define FLAT_INCLUDES
 #include "../../keyargs/keyargs.h"
 #include "../../range/def.h"
 #include "../../window/def.h"
-#include "../../convert/def.h"
-#include "../../convert/fd.h"
+#include "../../convert/source.h"
+#include "../../convert/fd/source.h"
 #include "../internal/spec.h"
 #include "../../log/log.h"
 
@@ -47,11 +48,11 @@ int main()
 {
     window_unsigned_char read_buffer = {0};
     
-    fd_interface fd_read = fd_interface_init(.fd = STDIN_FILENO, .read_buffer = &read_buffer);
+    fd_source fd_read = fd_source_init(.fd = STDIN_FILENO, .contents = &read_buffer);
 
     bool error = false;
 
-    if (!convert_fill_minimum(&error, &fd_read.interface, sizeof(struct posix_header)))
+    if (!convert_fill_minimum(&error, &fd_read.source, sizeof(struct posix_header)))
     {
 	log_fatal ("Could not read whole header");
     }
