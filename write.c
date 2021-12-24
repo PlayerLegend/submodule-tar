@@ -84,7 +84,7 @@ keyargs_define(tar_write_header)
 	struct posix_header posix;
 	char bytes[TAR_BLOCK_SIZE];
     }
-    header;
+	header = {0};
 
     memset (&header.posix, 0, sizeof(header.posix));
     //memset (&header.posix, 0, sizeof(header.posix));
@@ -280,7 +280,7 @@ keyargs_define(tar_write_path_header)
 	log_fatal ("Could not identify a tar entry type for %s", args.path);
     }
 
-    char linkname[PATH_MAX + 1];
+    char linkname[PATH_MAX + 1] = {0};
 
     if (type == TAR_SYMLINK)
     {
@@ -327,8 +327,11 @@ fail:
     return false;
 }
 
-keyargs_define(tar_write_path)
+keyargs_define(tar_write_sink_path)
 {
+    assert (args.buffer);
+    assert (args.sink);
+    
     args.sink->contents = &args.buffer->region.const_cast;
     
     tar_type type = TAR_ERROR;
@@ -341,7 +344,22 @@ keyargs_define(tar_write_path)
     {
 	return false;
     }
+    
+    if (args.detect_type)
+    {
+	*args.detect_type = type;
+    }
 
+    if (args.detect_size)
+    {
+	*args.detect_size = size;
+    }
+
+    if (type != TAR_FILE)
+    {
+	return true;
+    }
+    
     int file_fd = open (args.path, O_RDONLY);
 
     if (file_fd < 0)
@@ -362,8 +380,105 @@ keyargs_define(tar_write_path)
     }
 
     tar_write_padding(args.buffer, size);
-
+	
     bool error = false;
 
     return convert_drain (&error, args.sink);
+}
+/*
+keyargs_define(tar_write_file_source)
+{
+    // ensure args.buffer is valid
+    
+    window_unsigned_char buffer_substitute = {0};
+
+    if (!args.buffer)
+    {
+	args.buffer = &buffer_substitute;
+    }
+
+    // write header
+    
+    if (!tar_write_header(.output = args.buffer,
+			  .name = args.name,
+			  .mode = args.mode,
+			  .uid = args.uid,
+			  .gid = args.gid,
+			  .size = args.size,
+			  .mtime = args.mtime,
+			  .type = TAR_FILE,
+			  .linkname = args.linkname,
+			  .uname = args.uname,
+			  .gname = args.gname))
+    {
+	log_fatal("Failed to write file header to buffer");
+    }
+
+    args.sink->contents = &args.buffer->region.const_cast;
+
+    bool error = false;
+
+    if (!convert_drain (&error, args.sink))
+    {
+	log_fatal ("Failed to sink file header buffer contents");
+    }
+
+    // write file
+    
+    args.sink->contents = &args.source->contents->region.const_cast;
+    
+    size_t size = 0;
+
+    while (convert_fill (&error, args.source))
+    {
+	size += range_count(args.source->contents->region);
+	if (!convert_drain (&error, args.sink))
+	{
+	    return false;
+	}
+    }
+
+    if (error)
+    {
+	log_fatal ("An error occurred while joining streams");
+    }
+
+    // write padding
+    
+    tar_write_padding(args.buffer, size);
+    
+    args.sink->contents = &args.buffer->region.const_cast;
+
+    if (!convert_drain (&error, args.sink))
+    {
+	log_fatal ("Failed to sink file padding buffer contents");
+    }
+
+    // clean up
+    
+    window_clear (buffer_substitute);
+    
+    return true;
+    
+fail:
+    window_clear (buffer_substitute);
+    return false;
+}
+*/
+
+bool tar_write_sink_end(convert_sink * sink)
+{
+    window_unsigned_char buffer = {0};
+
+    tar_write_end (&buffer);
+
+    sink->contents = &buffer.region.const_cast;
+
+    bool error = false;
+    
+    bool retval = convert_drain (&error, sink);
+
+    window_clear (buffer);
+
+    return retval;
 }
